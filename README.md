@@ -1,6 +1,6 @@
-# Amharic Proverbs for macOS
+# Selamta
 
-> Display Amharic proverbs on your Mac - Terminal, Notifications, and Lock Screen!
+> Display Amharic proverbs on your macOS - Terminal, Notifications, and Lock Screen!
 
 A delightful macOS utility that displays random Amharic proverbs from a collection of 1,440+ traditional Ethiopian sayings. Perfect for staying connected to Ethiopian culture while you work.
 
