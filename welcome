@@ -1,0 +1,183 @@
+#!/bin/bash
+# Amharic Proverb Display Script
+# Shows proverbs in terminal, notifications, and lock screen
+
+# Configuration
+ENABLE_SOUND=${ENABLE_SOUND:-0}
+ENABLE_NOTIFICATION=${ENABLE_NOTIFICATION:-1}
+ENABLE_LOCK_SCREEN=${ENABLE_LOCK_SCREEN:-1}
+LOG_FILE="${LOG_FILE:-/tmp/greeting_log.txt}"
+# CSV file location - will be installed to /usr/local/share/welcome/
+CLEANED_CSV="${CLEANED_CSV:-/usr/local/share/welcome/amharic_cleaned.csv}"
+
+# Colors for terminal output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+log_message() {
+    # Silently try to log, don't fail if we can't
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): $1" >> "$LOG_FILE" 2>/dev/null || true
+}
+
+play_sound() {
+    if [[ $ENABLE_SOUND -eq 1 ]] && command -v afplay &> /dev/null; then
+        afplay /System/Library/Sounds/Glass.aiff 2>/dev/null &
+    fi
+}
+
+send_notification() {
+    if [[ $ENABLE_NOTIFICATION -eq 1 ]] && command -v osascript &> /dev/null; then
+        osascript -e "display notification \"$1\" with title \"የቀን መልእክት 📜\" subtitle \"Ethiopian Proverb\"" 2>/dev/null &
+    fi
+}
+
+set_lock_screen_message() {
+    if [[ $ENABLE_LOCK_SCREEN -eq 1 ]] && command -v osascript &> /dev/null; then
+        # Set lock screen message using sudo
+        sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "$1" 2>/dev/null || {
+            # Alternative: try without sudo for user-level
+            defaults write com.apple.loginwindow LoginwindowText "$1" 2>/dev/null || true
+        }
+        log_message "Lock screen message set"
+    fi
+}
+
+check_requirements() {
+    if [[ $ENABLE_SOUND -eq 1 ]] && ! command -v afplay &> /dev/null; then
+        echo -e "${YELLOW}Note: afplay not found - sound notifications disabled${NC}"
+        ENABLE_SOUND=0
+    fi
+
+    if [[ $ENABLE_NOTIFICATION -eq 1 ]] && ! command -v osascript &> /dev/null; then
+        echo -e "${YELLOW}Note: osascript not found - desktop notifications disabled${NC}"
+        ENABLE_NOTIFICATION=0
+    fi
+    
+    if [ ! -f "$CLEANED_CSV" ]; then
+        echo -e "${YELLOW}Warning: CSV file not found at $CLEANED_CSV${NC}"
+        return 1
+    fi
+    
+    return 0
+}
+
+get_random_proverb() {
+    local proverb=""
+    
+    # Try to read from CSV file
+    if [ -f "$CLEANED_CSV" ] && [ -r "$CLEANED_CSV" ]; then
+        # Count lines
+        local total_lines=$(wc -l < "$CLEANED_CSV" 2>/dev/null || echo "0")
+        if [ "$total_lines" -gt 0 ]; then
+            # Generate random line number
+            local random_line=$(( (RANDOM % total_lines) + 1 ))
+            # Extract that line
+            proverb=$(sed -n "${random_line}p" "$CLEANED_CSV" 2>/dev/null)
+        fi
+    fi
+    
+    # Fallback proverb if we couldn't read from file
+    if [ -z "$proverb" ]; then
+        proverb="እህል ያለ ውሀ ንጉስ ያለድሀ ።"
+    fi
+    
+    echo "$proverb"
+}
+
+show_help() {
+    cat << EOF
+Ethiopian Proverbs Script
+Displays random Amharic proverbs in terminal, notifications, and lock screen
+
+Usage: $0 [OPTIONS]
+
+Options:
+  -h, --help          Show this help message
+  -s, --sound         Enable sound notifications
+  -n, --notify        Enable desktop notifications (default: on)
+  -l, --lock          Enable lock screen message (default: on)
+  --no-notify         Disable desktop notifications
+  --no-lock           Disable lock screen message
+  -t, --terminal-only Only display in terminal (no notifications or lock screen)
+
+Examples:
+  $0                  # Run with default settings
+  $0 -s               # Run with sound enabled
+  $0 -t               # Terminal only mode
+  $0 --no-lock        # Disable lock screen message
+
+Environment Variables:
+  ENABLE_SOUND        Set to 1 to enable sound
+  ENABLE_NOTIFICATION Set to 1 to enable notifications (default)
+  ENABLE_LOCK_SCREEN  Set to 1 to enable lock screen (default)
+  CLEANED_CSV         Path to CSV file with proverbs
+EOF
+}
+
+main() {
+    check_requirements
+    
+    # Get random proverb
+    local proverb=$(get_random_proverb)
+    
+    # Display in terminal
+    echo -e "${CYAN}${proverb}${NC}"
+    
+    # Log the action
+    log_message "Displayed: $proverb"
+    
+    # Optional sound
+    play_sound
+    
+    # Send notification
+    send_notification "$proverb"
+    
+    # Set lock screen message
+    set_lock_screen_message "$proverb"
+}
+
+# Parse CLI options
+while [ $# -gt 0 ]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -s|--sound) 
+            ENABLE_SOUND=1
+            shift
+            ;;
+        -n|--notify) 
+            ENABLE_NOTIFICATION=1
+            shift
+            ;;
+        -l|--lock) 
+            ENABLE_LOCK_SCREEN=1
+            shift
+            ;;
+        --no-notify) 
+            ENABLE_NOTIFICATION=0
+            shift
+            ;;
+        --no-lock) 
+            ENABLE_LOCK_SCREEN=0
+            shift
+            ;;
+        -t|--terminal-only)
+            ENABLE_SOUND=0
+            ENABLE_NOTIFICATION=0
+            ENABLE_LOCK_SCREEN=0
+            shift
+            ;;
+        *) 
+            echo -e "${RED}Unknown option: $1${NC}"
+            echo "Use -h or --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+main

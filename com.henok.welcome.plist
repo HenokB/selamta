@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.henok.welcome</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/local/bin/welcome</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>HOME</key>
+      <string>/var/root</string>
+      <key>USER</key>
+      <string>root</string>
+      <key>ENABLE_NOTIFICATION</key>
+      <string>1</string>
+      <key>ENABLE_LOCK_SCREEN</key>
+      <string>1</string>
+      <key>ENABLE_SOUND</key>
+      <string>0</string>
+    </dict>
+
+    <key>StartInterval</key>
+    <integer>900</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/welcome_output.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/welcome_error.log</string>
+
+  </dict>
+</plist>
