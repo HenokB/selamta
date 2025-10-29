@@ -4,6 +4,9 @@
 
 A delightful macOS utility that displays random Amharic proverbs from a collection of 1,440+ traditional Ethiopian sayings. Perfect for staying connected to Ethiopian culture while you work.
 
+![Uploading image.png…]()
+
+
 <div align="center">
 
 ![macOS](https://img.shields.io/badge/macOS-10.15+-blue.svg)
