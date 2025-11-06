@@ -26,7 +26,7 @@ A delightful macOS utility that displays random Amharic proverbs from a collecti
 
 ```bash
 # Display a random proverb
-$ welcome
+$ selamta
 የሚያልፈው ጊዜ አይመለስም።
 ```
 
@@ -41,8 +41,8 @@ $ welcome
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/welcome.git
-cd welcome
+git clone https://github.com/HenokB/selamta.git
+cd selamta
 ```
 
 2. **Run the installer**
@@ -54,9 +54,9 @@ sudo ./install.sh
 
 ### What Gets Installed
 
-- `/usr/local/bin/welcome` - Main script
-- `/usr/local/share/welcome/amharic_cleaned.csv` - Proverb database
-- `/Library/LaunchDaemons/com.henok.welcome.plist` - Auto-run configuration
+- `/usr/local/bin/selamta` - Main script
+- `/usr/local/share/selamta/amharic_cleaned.csv` - Proverb database
+- `/Library/LaunchDaemons/com.ethiopia.selamta.plist` - Auto-run configuration
 
 ## 🚀 Usage
 
@@ -64,19 +64,19 @@ sudo ./install.sh
 
 ```bash
 # Display a random proverb
-welcome
+selamta
 
 # Show help and all options
-welcome --help
+selamta --help
 
 # Terminal-only mode (no notifications)
-welcome -t
+selamta -t
 
 # Enable sound notification
-welcome -s
+selamta -s
 
 # Disable lock screen message
-welcome --no-lock
+selamta --no-lock
 ```
 
 ### Notification Setup
@@ -85,7 +85,7 @@ To receive notification pop-ups:
 
 1. **Run the script once** to trigger macOS permission prompt:
    ```bash
-   /usr/local/bin/welcome
+   selamta
    ```
 
 2. **Allow notifications** when prompted
@@ -96,6 +96,8 @@ To receive notification pop-ups:
    - Find **"Terminal"** or **"Script Editor"** in the list
    - Enable **"Allow Notifications"**
 
+> On Linux, the script falls back to `notify-send`. Make sure `libnotify` is installed and desktop notifications are enabled for your session.
+
 ### Lock Screen Setup
 
 To display proverbs on your lock screen:
@@ -104,7 +106,7 @@ To display proverbs on your lock screen:
    - Open **System Preferences** → **Security & Privacy** → **Privacy**
    - Select **Full Disk Access** from the sidebar
    - Click the 🔒 lock and authenticate
-   - Click **+** and add `/usr/local/bin/welcome`
+   - Click **+** and add `/usr/local/bin/selamta`
 
 2. **Test it**: Lock your screen (`⌘ + ^ + Q`)
 3. **See the proverb** displayed above the login field! ✨
@@ -116,7 +118,7 @@ To display proverbs on your lock screen:
 Edit the daemon configuration:
 
 ```bash
-sudo nano /Library/LaunchDaemons/com.henok.welcome.plist
+sudo nano /Library/LaunchDaemons/com.ethiopia.selamta.plist
 ```
 
 Change the interval (in seconds):
@@ -127,8 +129,8 @@ Change the interval (in seconds):
 
 Reload the daemon:
 ```bash
-sudo launchctl unload /Library/LaunchDaemons/com.henok.welcome.plist
-sudo launchctl load /Library/LaunchDaemons/com.henok.welcome.plist
+sudo launchctl unload /Library/LaunchDaemons/com.ethiopia.selamta.plist
+sudo launchctl load /Library/LaunchDaemons/com.ethiopia.selamta.plist
 ```
 
 ### Enable/Disable Features
@@ -151,23 +153,23 @@ Edit environment variables in the plist file:
 ### View Logs
 
 ```bash
-# See proverb output
-tail -f /tmp/welcome_output.log
+# See proverb output (daemon logs)
+tail -f /var/log/selamta_output.log
 
-# See any errors
-tail -f /tmp/welcome_error.log
+# See any errors (daemon logs)
+tail -f /var/log/selamta_error.log
 
-# View activity log
-cat /tmp/greeting_log.txt
+# View activity log (user logs)
+tail -f ~/Library/Logs/selamta.log
 ```
 
 ### Check Daemon Status
 
 ```bash
 # Check if running
-sudo launchctl list | grep welcome
+sudo launchctl list | grep selamta
 
-# Should show: com.henok.welcome
+# Should show: com.ethiopia.selamta
 ```
 
 ### View Current Lock Screen Message
@@ -179,7 +181,7 @@ sudo defaults read /Library/Preferences/com.apple.loginwindow LoginwindowText
 ## 🗑️ Uninstall
 
 ```bash
-cd /path/to/welcome
+cd /path/to/selamta
 sudo ./uninstall.sh
 ```
 
@@ -191,8 +193,8 @@ This will remove all installed files, stop the daemon, and clear the lock screen
 <summary><b>Lock screen message not showing?</b></summary>
 
 - Ensure Full Disk Access is granted (see Lock Screen Setup above)
-- Try running manually: `sudo /usr/local/bin/welcome`
-- Check error log: `cat /tmp/welcome_error.log`
+- Try running manually: `sudo selamta`
+- Check error log: `tail -f /var/log/selamta_error.log`
 - Restart your Mac if needed
 </details>
 
@@ -209,15 +211,17 @@ This will remove all installed files, stop the daemon, and clear the lock screen
 ```bash
 # This should show a notification
 osascript -e 'display notification "Test notification" with title "Testing"'
+# Linux fallback
+notify-send "Testing" "Test notification"
 ```
 
 **If daemon notifications don't work:**
 - Wait for the next scheduled run (every 15 min)
-- Check `/tmp/welcome_error.log` for errors
-- Make sure the daemon is running: `sudo launchctl list | grep welcome`
+- Check `/var/log/selamta_error.log` for errors
+- Make sure the daemon is running: `sudo launchctl list | grep selamta`
 
 **Still not working?**
-- Run: `/usr/local/bin/welcome` and approve any permission prompts
+- Run: `selamta` and approve any permission prompts
 - Restart your Mac to refresh notification permissions
 </details>
 
@@ -226,14 +230,14 @@ osascript -e 'display notification "Test notification" with title "Testing"'
 
 ```bash
 # Check if loaded
-sudo launchctl list | grep welcome
+sudo launchctl list | grep selamta
 
 # Reload daemon
-sudo launchctl unload /Library/LaunchDaemons/com.henok.welcome.plist
-sudo launchctl load /Library/LaunchDaemons/com.henok.welcome.plist
+sudo launchctl unload /Library/LaunchDaemons/com.ethiopia.selamta.plist
+sudo launchctl load /Library/LaunchDaemons/com.ethiopia.selamta.plist
 
 # Check logs
-cat /tmp/welcome_error.log
+tail -f /var/log/selamta_error.log
 ```
 </details>
 
@@ -242,7 +246,7 @@ cat /tmp/welcome_error.log
 
 Make sure the installation completed successfully:
 ```bash
-ls -la /usr/local/share/welcome/amharic_cleaned.csv
+ls -la /usr/local/share/selamta/amharic_cleaned.csv
 ```
 
 If missing, reinstall:
@@ -254,14 +258,14 @@ sudo ./install.sh
 ## 📁 Project Structure
 
 ```
-welcome/
-├── welcome                  # Main script
-├── amharic_cleaned.csv      # Database of 1,440+ proverbs
-├── com.henok.welcome.plist  # LaunchDaemon configuration
-├── install.sh               # Installation script
-├── uninstall.sh             # Uninstallation script
-├── README.md                # This file
-└── LICENSE                  # MIT License
+selamta/
+├── selamta                    # Main script
+├── amharic_cleaned.csv        # Database of 1,440+ proverbs
+├── com.ethiopia.selamta.plist # LaunchDaemon configuration
+├── install.sh                 # Installation script
+├── uninstall.sh               # Uninstallation script
+├── README.md                  # This file
+└── LICENSE                    # MIT License
 ```
 
 
@@ -281,4 +285,9 @@ To add your own proverbs, simply add new lines to this file!
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🙏 Acknowledgments
+
+- Thanks to [dyacob](https://github.com/dyacob) for providing additional proverb data, sourced from [GeezOrg](https://github.com/geezorg/ebooks/tree/master/amharic/poetry/Miscellaneous/src).
+- Some dataset entries are also from [ProverbEval](https://aclanthology.org/2025.findings-naacl.350v1.pdf).
+- Shout-out to [nebiyuelias1](https://github.com/nebiyuelias1) for highlighting the `notify-send` fallback for Arch/Linux.
 

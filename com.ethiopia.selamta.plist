@@ -4,11 +4,11 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.henok.welcome</string>
+    <string>com.ethiopia.selamta</string>
 
     <key>ProgramArguments</key>
     <array>
-      <string>/usr/local/bin/welcome</string>
+      <string>/usr/local/bin/selamta</string>
     </array>
 
     <key>EnvironmentVariables</key>
@@ -32,10 +32,10 @@
     <true/>
 
     <key>StandardOutPath</key>
-    <string>/tmp/welcome_output.log</string>
+    <string>/var/log/selamta_output.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/tmp/welcome_error.log</string>
+    <string>/var/log/selamta_error.log</string>
 
   </dict>
 </plist>
